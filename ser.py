@@ -1,5 +1,15 @@
 import serial
 import urllib,urllib2
+import threading
+
+url="http://192.168.179.2/post.php"
+
+def  post(arg):
+    #print(arg)
+    params={'uart':arg}
+    data=urllib.urlencode(params)
+    req=urllib2.Request(url,data)
+    urllib2.urlopen(req)
 
 port = serial.Serial("/dev/ttyAMA0", 115200)
 
@@ -7,8 +17,4 @@ while True:
     rcv = port.readline()
     resp=rcv.strip()
     print(resp)
-    url="http://192.168.179.2/post.php"
-    params={'uart':resp}
-    data=urllib.urlencode(params)
-    req=urllib2.Request(url,data)
-    urllib2.urlopen(req)
+    threading.Thread(target=post,args=(resp,)).start()
