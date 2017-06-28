@@ -4,6 +4,7 @@ import serial
 import urllib,urllib2
 import threading
 import sys
+import os
 
 #POSTするURL
 url="http://192.168.179.2/post.php"
@@ -19,8 +20,14 @@ serport="/dev/ttyAMA0"
 #idの集合(グローバル変数)
 ids=[]
 
+# logファイルの場所
+log=os.path.join(os.path.dirname(__file__),"log.txt")
+
 def  post(arg):
     try:
+        f=open(log,"a")
+        f.write(arg+"\n")
+        f.close()
         #受信したデータを;でわける
         message=arg.split(";")
         
@@ -47,14 +54,17 @@ def  post(arg):
 
 #main program
 #センサidを取得
-try:
-    data=urllib.urlencode({'user':username,'pass':password})
-    req=urllib2.Request(url_login,data)
-    res=urllib2.urlopen(req).read()
-    ids=res.split(",")
-except:
-    print("センサidの取得に失敗")
-    sys.exit()
+while ids==[]:
+    try:
+        data=urllib.urlencode({'user':username,'pass':password})
+        req=urllib2.Request(url_login,data)
+        res=urllib2.urlopen(req).read()
+        ids=res.split(",")
+    except:
+        print("センサidの取得に失敗")
+        f=open(log,"a")
+        f.write("センサidの取得に失敗\n")
+        f.close()
 
 #シリアル通信を開始
 port = serial.Serial(serport, 115200)
